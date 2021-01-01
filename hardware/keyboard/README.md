@@ -26,3 +26,5 @@ G#2 = 0A 0B
 ...
 C5  = 4G 4H
 
+BDFH => first button pressed
+ACEG => second 
