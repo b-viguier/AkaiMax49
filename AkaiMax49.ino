@@ -20,7 +20,7 @@ struct KeyState {
 #define KOUT_LAST_PIN (KOUT_FIRST_PIN + KOUT_NB - 1)
 
 #define KIN_FIRST_PIN 8
-#define KIN_NB 2
+#define KIN_NB 5
 #define KIN_LAST_PIN (KIN_FIRST_PIN + KIN_NB - 1)
 
 #define NB_KEYS (KIN_NB * KOUT_NB / 2)
@@ -36,28 +36,36 @@ KeyState states[NB_KEYS];
 
 void sendNoteOn(byte keyIndex, unsigned int buttonsDelta) {
   digitalWrite(13, HIGH);
-  Serial.print("delta:");
-  Serial.println(buttonsDelta);
-  Serial.print("0X80|");
-  Serial.print(NOTE_FIRST + keyIndex, HEX);
-  Serial.print("|");
+  //Serial.print("delta:");
+  //Serial.println(buttonsDelta);
+  //Serial.print("0X90|");
+  //Serial.print(NOTE_FIRST + keyIndex, HEX);
+  //Serial.print("|");
+  Serial.write(0x90);
+  Serial.write(NOTE_FIRST + keyIndex);
   if (buttonsDelta < NOTE_DELTA_MIN) {
-    Serial.println("0x7F");
+    //Serial.println("0x7F");
+    Serial.write(0x7F);
   } else if (buttonsDelta > NOTE_DELTA_MAX) {
-    Serial.println("0x00");
+    //Serial.println("0x00");
+    Serial.write(0x00);
   } else {
-    Serial.println((byte)(0x7F - 0x7F * (buttonsDelta - NOTE_DELTA_MIN + 0.0f) / (NOTE_DELTA_MAX - NOTE_DELTA_MIN)), HEX);
+    //Serial.println((byte)(0x7F - 0x7F * (buttonsDelta - NOTE_DELTA_MIN + 0.0f) / (NOTE_DELTA_MAX - NOTE_DELTA_MIN)), HEX);
+    Serial.write((byte)(0x7F - 0x7F * (buttonsDelta - NOTE_DELTA_MIN + 0.0f) / (NOTE_DELTA_MAX - NOTE_DELTA_MIN)));
   }
 }
 
 void sendNoteOff(byte keyIndex) {
-  Serial.print("0X90|");
-  Serial.println(NOTE_FIRST + keyIndex, HEX);
+  //Serial.print("0X80|");
+  Serial.write(0x80);
+  //Serial.println(NOTE_FIRST + keyIndex, HEX);
+  Serial.write(NOTE_FIRST + keyIndex);
+  Serial.write(0x00);
   digitalWrite(13, LOW);
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(31250);
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
 
@@ -84,11 +92,11 @@ void loop() {
       const bool pressed = !digitalRead(kinPin);
       if (state.button2 != pressed) {
         if (pressed) {
-          Serial.println("button2 Pressed");
+          //Serial.println("button2 Pressed");
           
           sendNoteOn(keyIndex, millis() - state.pushStart);
         } else {
-          Serial.println("button2 Released");
+          //Serial.println("button2 Released");
           sendNoteOff(keyIndex);
         }
         state.button2 = pressed;
@@ -104,10 +112,10 @@ void loop() {
       const bool pressed = !digitalRead(kinPin);
       if (state.button1 != pressed) {
         if (pressed) {
-          Serial.println("button1 Pressed");
+          //Serial.println("button1 Pressed");
           state.pushStart = millis();
         } else {
-          Serial.println("button1 Released");
+          //Serial.println("button1 Released");
         }
         state.button1 = pressed;
       }
