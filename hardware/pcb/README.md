@@ -9,14 +9,14 @@ FFC `B` 26 pins (`01`-`26`)
 
 # `B` addressing
 
-⚠️ Don't forget `B-19` is the _ENABLE_ pin. 
+⚠️ Don't forget `B-19` is the _ENABLE_ pin for LEDs. 
 
 | `16` | `17` | `15` | `14` | `13` | `12` | `11` | `10` | Target |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ------ |
 |  1   |  1   |   X  |   X  |   X  |   X  |   X  |   X  | None   |
 
-* `16` : buttons
-* `17` : LEDs
+* `17` : buttons clock
+* `16` : LEDs clock
 
 ## Sliders LEDs
 

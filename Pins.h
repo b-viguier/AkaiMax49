@@ -1,0 +1,27 @@
+#ifndef AKAIMAX49_PINS_H
+#define AKAIMAX49_PINS_H
+
+enum Pin {
+  PIN_DATA_1 = 23,
+  PIN_DATA_2 = 24,
+  PIN_DATA_3 = 25,
+  PIN_DATA_4 = 26,
+  PIN_DATA_5 = 27,
+  PIN_DATA_6 = 28,
+  PIN_DATA_7 = 29,
+  PIN_DATA_8 = 30,
+
+  PIN_ADDR_15 = 40,
+  PIN_ADDR_14 = 39,
+  PIN_ADDR_13 = 38,
+  PIN_ADDR_12 = 35,
+  PIN_ADDR_11 = 34,
+  PIN_ADDR_10 = 33,
+
+  PIN_CLOCK_17 = 44,
+  PIN_CLOCK_16 = 43,
+
+  PIN_ENABLE_19 = 48,
+};
+
+#endif //AKAIMAX49_PINS_H

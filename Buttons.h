@@ -1,0 +1,86 @@
+#ifndef AKAIMAX49_BUTTONS_H
+#define AKAIMAX49_BUTTONS_H
+
+enum id {
+  NOTE_REPEAT,
+  LATCH,
+  ON_OFF,
+  SEQ_SELECT,
+  ARP_MODE,
+
+  /*
+  PAD1_UP,
+  PAD2_DOWN,
+  PAD3_INC,
+  PAD4_EXCL,
+  PAD5_RAND,
+  PAD6_CHORD,
+  PAD7_DOUBLE,
+  PAD8_PATTERN,
+  PAD9,
+  PAD10,
+  PAD11,
+  PAD12,
+   */
+
+  PAD_BANK_A,
+  PAD_BANK_B,
+  PAD_BANK_C,
+  PAD_BANK_D,
+  FULL_LEVEL,
+
+  SHIFT,
+  EDIT_STORE,
+  PROGRAM_STD,
+  GLOBAL_HUI,
+  PROG_CHANGE,
+  TEMPO,
+
+  PREV,
+  NEXT,
+  STOP,
+  PLAY,
+  RECORD,
+
+  OCT_DOWN,
+  OCT_UP,
+
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN,
+  ENTER,
+
+  MODE_MIDI_CC,
+  MODE_SEQ_CC,
+  MODE_SEQ_PITCH,
+
+  BANK_1_8,
+  BANK_9_16,
+  BANK_17_24,
+  BANK_25_32,
+
+  TIME_DIV,
+  TIME_4,
+  TIME_4T,
+  TIME_8,
+  TIME_8T,
+  TIME_16,
+  TIME_16T,
+  TIME_32,
+  TIME_32T,
+
+};
+
+enum ButtonBlockAddr {
+  U524 = 0b00001000,
+  U221 = 0b00001001,
+  U220 = 0b00001010,
+  U223 = 0b00001011,
+  U222 = 0b00001100,
+  U272 = 0b00001101,
+};
+
+void triggerButtons();
+
+#endif //AKAIMAX49_BUTTONS_H

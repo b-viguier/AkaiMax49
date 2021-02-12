@@ -1,64 +1,45 @@
-
-
-#define PIN_DATA_1 23
-#define PIN_DATA_2 24
-#define PIN_DATA_3 25
-#define PIN_DATA_4 26
-#define PIN_DATA_5 27
-#define PIN_DATA_6 28
-#define PIN_DATA_7 29
-#define PIN_DATA_8 30
-
-#define PIN_ADDR_15 40
-#define PIN_ADDR_14 39
-#define PIN_ADDR_13 38
-#define PIN_ADDR_12 35
-#define PIN_ADDR_11 34
-#define PIN_ADDR_10 33
-
-#define PIN_CLOCK_17 44
-#define PIN_CLOCK_16 43
-
-#define PIN_ENABLE_19 48
+#include "Buttons.h"
+#include "Pins.h"
 
 enum LedBlockAddr {
-  U310 = 0b01000111,
-  U312 = 0b01001000,
-  U316 = 0b01001001,
-  U317 = 0b01001010,
-  U311 = 0b01001011,
-  U313 = 0b01001100,
-  U319 = 0b01001101,
-  U318 = 0b01001110,
-  U314 = 0b01001111,
-  U315 = 0b01010000,
-  U320 = 0b01010001,
-  U321 = 0b01010010,
-  U410 = 0b01010011,
-  U413 = 0b01010100,
-  U416 = 0b01010101,
-  U417 = 0b01010110,
-  U422 = 0b01010111,
-  U411 = 0b01011000,
-  U414 = 0b01011001,
-  U418 = 0b01011010,
-  U419 = 0b01011011,
-  U415 = 0b01011100,
-  U420 = 0b01011101,
-  U421 = 0b01011110,
-  U412 = 0b01011111,
-  U520_U521 = 0b01000000,
-  U522_523 = 0b01000001,
-  U251 = 0b01000010,
-  U252 = 0b01000011,
-  U267_268 = 0b01000100,
-  U269_270 = 0b01000101,
-  U271 = 0b01000110,
+  U520_U521 = 0b00000000,
+  U522_523 = 0b00000001,
+  U251 = 0b00000010,
+  U252 = 0b00000011,
+  U267_268 = 0b00000100,
+  U269_270 = 0b00000101,
+  U271 = 0b00000110,
+  U310 = 0b00000111,
+  U312 = 0b00001000,
+  U316 = 0b00001001,
+  U317 = 0b00001010,
+  U311 = 0b00001011,
+  U313 = 0b00001100,
+  U319 = 0b00001101,
+  U318 = 0b00001110,
+  U314 = 0b00001111,
+  U315 = 0b00010000,
+  U320 = 0b00010001,
+  U321 = 0b00010010,
+  U410 = 0b00010011,
+  U413 = 0b00010100,
+  U416 = 0b00010101,
+  U417 = 0b00010110,
+  U422 = 0b00010111,
+  U411 = 0b00011000,
+  U414 = 0b00011001,
+  U418 = 0b00011010,
+  U419 = 0b00011011,
+  U415 = 0b00011100,
+  U420 = 0b00011101,
+  U421 = 0b00011110,
+  U412 = 0b00011111,
 };
 
 
-void lightBlock(byte addr, byte data)
-{
+
+
+void lightBlock(LedBlockAddr addr, byte data) {
   digitalWrite(PIN_ADDR_10, addr & 0b00000001);
   digitalWrite(PIN_ADDR_11, addr & 0b00000010);
   digitalWrite(PIN_ADDR_12, addr & 0b00000100);
@@ -81,21 +62,21 @@ void lightBlock(byte addr, byte data)
   digitalWrite(PIN_CLOCK_16, HIGH);
 }
 
-void snake(byte addr)
-{
-  for(byte led = 1; led > 0; led = led << 1) {
-    lightBlock(addr, led);
+void snake(byte addr) {
+  for (byte led = 1; led > 0; led = led << 1) {
+    lightBlock((LedBlockAddr) addr, led);
     delay(10);
   }
-  lightBlock(addr, 0);
+  lightBlock((LedBlockAddr) addr, 0);
 }
 
 
 void setup() {
-  
+
   Serial.begin(9600);
-  
-  pinMode(PIN_ENABLE_19, OUTPUT); digitalWrite(PIN_ENABLE_19, HIGH);
+
+  pinMode(PIN_ENABLE_19, OUTPUT);
+  digitalWrite(PIN_ENABLE_19, HIGH);
 
   for (byte pin = PIN_DATA_1; pin <= PIN_DATA_8; ++pin) {
     pinMode(pin, OUTPUT);
@@ -107,8 +88,10 @@ void setup() {
     digitalWrite(pin, LOW);
   }
 
-  pinMode(PIN_CLOCK_16, OUTPUT); digitalWrite(PIN_CLOCK_16, HIGH);
-  pinMode(PIN_CLOCK_17, OUTPUT); digitalWrite(PIN_CLOCK_17, HIGH);
+  pinMode(PIN_CLOCK_16, OUTPUT);
+  digitalWrite(PIN_CLOCK_16, HIGH);
+  pinMode(PIN_CLOCK_17, OUTPUT);
+  digitalWrite(PIN_CLOCK_17, HIGH);
 
   Serial.println("Waiting 1s");
   delay(1000);
@@ -146,16 +129,19 @@ void setup() {
   lightBlock(U267_268, 0);
   lightBlock(U269_270, 0);
   lightBlock(U271, 0);
-  
+
+  // Enable LEDs
   digitalWrite(PIN_ENABLE_19, LOW);
   Serial.println("Init Done");
 }
 
 void loop() {
-  
-  Serial.println("loop");
-  
- 
+
+  //Serial.println("loop");
+
+  triggerButtons();
+
+/*
   snake(U310);
   snake(U312);
   snake(U316);
@@ -181,5 +167,6 @@ void loop() {
   snake(U415);
   snake(U420);
   snake(U421);
-  
+  */
+
 }
