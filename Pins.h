@@ -18,8 +18,8 @@ enum Pin {
   PIN_ADDR_11 = 34,
   PIN_ADDR_10 = 33,
 
-  PIN_CLOCK_17 = 44,
-  PIN_CLOCK_16 = 43,
+  PIN_CLOCK_BTN_17 = 44,
+  PIN_CLOCK_LED_16 = 43,
 
   PIN_ENABLE_19 = 48,
 };
