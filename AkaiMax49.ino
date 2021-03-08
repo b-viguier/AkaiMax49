@@ -1,11 +1,13 @@
 #include "ButtonManager.h"
 #include "LedManager.h"
+#include "LcdManager.h"
 #include "Pins.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
 LedManager ledManager;
 ButtonManager buttonManager;
+LcdManager lcdManager;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -37,6 +39,9 @@ void setup() {
   Serial.println("Light down");
   ledManager.setup();
   buttonManager.setup();
+
+  Serial.println("LCD Init");
+  lcdManager.setup();
 
 
   DEFAULT_CALLBACK(NOTE_REPEAT);
@@ -83,10 +88,19 @@ void setup() {
   buttonManager.setCallback(ButtonManager::LEFT,[](bool enable) { ledManager.light(LedManager::PAD11, enable);});
   buttonManager.setCallback(ButtonManager::RIGHT,[](bool enable) { ledManager.light(LedManager::PAD12, enable);});
 
+  lcdManager.printL(0, 0, "Akai");
+  lcdManager.printR(0, LcdManager::Dimension::NB_COLS-1, "Akai");
+  lcdManager.printL(1, 0, "Max49");
+  lcdManager.printR(1, LcdManager::Dimension::NB_COLS-1, "Max49");
+  lcdManager.printIntegerR(2, LcdManager::Dimension::NB_COLS-1, 123456);
+  lcdManager.printIntegerL(2, 0, 123456);
+  lcdManager.printIntegerL(3, 0, 0);
+  lcdManager.printIntegerR(3, 19, 123);
   Serial.println("Init Done");
 }
 
 byte prevLeds[8] = {0};
+unsigned int previousTime = 0;
 void loop() {
 
 
@@ -116,6 +130,15 @@ void loop() {
     ledManager.update();
 
     buttonManager.update();
+
+    const unsigned int time = millis() / 1000;
+    if(previousTime != time) {
+      previousTime = time;
+      lcdManager.printIntegerL(3, 0, time);
+    }
+    lcdManager.update();
+
+
     delay(5);
   }
 }

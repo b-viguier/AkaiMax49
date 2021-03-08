@@ -1,6 +1,8 @@
 #ifndef AKAIMAX49_PINS_H
 #define AKAIMAX49_PINS_H
 
+#include <Arduino.h>
+
 enum Pin {
   PIN_DATA_1 = 23,
   PIN_DATA_2 = 24,
@@ -22,6 +24,11 @@ enum Pin {
   PIN_CLOCK_LED_16 = 43,
 
   PIN_ENABLE_19 = 48,
+
+  PIN_LCD_ENABLE_22 = 50,
+  PIN_LCD_RW_23 = 51,
+  PIN_LCD_RS_24 = 52,
+  PIN_LCD_V0_25 = DAC1,
 };
 
 #endif //AKAIMAX49_PINS_H
