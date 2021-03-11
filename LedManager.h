@@ -1,6 +1,8 @@
 #ifndef AKAIMAX49_LEDMANAGER_H
 #define AKAIMAX49_LEDMANAGER_H
 
+class DataBus;
+
 class LedManager {
 
 public:
@@ -89,9 +91,9 @@ public:
   
   LedManager();
 
-  void setup();
+  void setup(DataBus& dataBus);
 
-  void update();
+  void update(DataBus& dataBus);
 
   void light(ID id, bool enable);
 

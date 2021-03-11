@@ -1,5 +1,6 @@
 #include "LcdManager.h"
 #include "Pins.h"
+#include "DataBus.h"
 
 /**
  * DISCLAIMER
@@ -73,42 +74,32 @@ namespace {
     delayMicroseconds(100);   // commands need > 37us to settle
   }
 
-  void write8bits(uint8_t value) {
+  void write8bits(const DataBus& dataBus, uint8_t value) {
 
-    digitalWrite(PIN_DATA_1, value & 0x01);
-    digitalWrite(PIN_DATA_2, value & 0x02);
-    digitalWrite(PIN_DATA_3, value & 0x04);
-    digitalWrite(PIN_DATA_4, value & 0x08);
-    digitalWrite(PIN_DATA_5, value & 0x10);
-    digitalWrite(PIN_DATA_6, value & 0x20);
-    digitalWrite(PIN_DATA_7, value & 0x40);
-    digitalWrite(PIN_DATA_8, value & 0x80);
-    for (int i = 0; i < 8; i++) {
-      digitalWrite(PIN_DATA_1 + i, (value >> i) & 0x01);
-    }
+    dataBus.write(value);
 
     pulseEnable();
   }
 
   // write either command or data, with automatic 4/8-bit selection
-  void send(byte value, byte mode) {
+  void send(const DataBus& dataBus, byte value, byte mode) {
     digitalWrite(PIN_LCD_RS_24, mode);
     digitalWrite(PIN_LCD_RW_23, LOW);
 
-    write8bits(value);
+    write8bits(dataBus, value);
   }
 
   /*********** mid level commands, for sending data/cmds */
 
-  inline void command(byte value) {
-    send(value, LOW);
+  inline void command(const DataBus& dataBus, byte value) {
+    send(dataBus, value, LOW);
   }
 
-  inline void write(byte value) {
-    send(value, HIGH);
+  inline void write(const DataBus& dataBus, byte value) {
+    send(dataBus, value, HIGH);
   }
 
-  void sendLineToLCD(char* currentChar, const uint8_t rowOffset) {
+  void sendLineToLCD(const DataBus& dataBus, char* currentChar, const uint8_t rowOffset) {
       bool isCursorAtTheRightPlace = false;
       for(uint8_t index = 0; index < LcdManager::NB_COLS; ++index, ++currentChar) {
       if(*currentChar == 0) {
@@ -117,11 +108,11 @@ namespace {
       }
 
       if(!isCursorAtTheRightPlace) {
-        command(LCD_SETDDRAMADDR | (rowOffset + index));
+        command(dataBus, LCD_SETDDRAMADDR | (rowOffset + index));
         isCursorAtTheRightPlace = true;
       }
 
-      write(*currentChar);
+      write(dataBus, *currentChar);
       *currentChar = 0;
     }
   }
@@ -133,7 +124,7 @@ LcdManager::LcdManager()
 {
 }
 
-void LcdManager::setup() {
+void LcdManager::setup(DataBus& dataBus) {
 
   // Contrast
   analogWrite(PIN_LCD_V0_25, 128);
@@ -141,9 +132,7 @@ void LcdManager::setup() {
   pinMode(PIN_LCD_RS_24, OUTPUT);
   pinMode(PIN_LCD_RW_23, OUTPUT);
   pinMode(PIN_LCD_ENABLE_22, OUTPUT);
-  for (byte pin = PIN_DATA_1; pin <= PIN_DATA_8; ++pin) {
-    pinMode(pin, OUTPUT);
-  }
+  dataBus.setMode(DataBus::BUS_OUT);
 
   // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
   // according to datasheet, we need at least 40ms after power rises above 2.7V
@@ -160,46 +149,43 @@ void LcdManager::setup() {
     // page 45 figure 23
 
     // Send function set command sequence
-    command(LCD_FUNCTIONSET | DISPLAY_FUNCTION);
+    command(dataBus, LCD_FUNCTIONSET | DISPLAY_FUNCTION);
     delayMicroseconds(4500);  // wait more than 4.1ms
 
     // second try
-    command(LCD_FUNCTIONSET | DISPLAY_FUNCTION);
+    command(dataBus, LCD_FUNCTIONSET | DISPLAY_FUNCTION);
     delayMicroseconds(150);
 
     // third go
-    command(LCD_FUNCTIONSET | DISPLAY_FUNCTION);
+    command(dataBus, LCD_FUNCTIONSET | DISPLAY_FUNCTION);
 
 
   // finally, set # lines, font size, etc.
-  command(LCD_FUNCTIONSET | DISPLAY_FUNCTION);
+  command(dataBus, LCD_FUNCTIONSET | DISPLAY_FUNCTION);
 
   // turn the display on with no cursor or blinking default
-  command(LCD_DISPLAYCONTROL | DISPLAY_CONTROL);
+  command(dataBus, LCD_DISPLAYCONTROL | DISPLAY_CONTROL);
 
   // clear it off
-  command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+  command(dataBus, LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
   delayMicroseconds(2000);  // this command takes a long time!
 
   // Initialize to default text direction (for romance languages)
-  command(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT);
+  command(dataBus, LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT);
 }
 
-void LcdManager::update() {
+void LcdManager::update(DataBus& dataBus) {
   if(!_changed) {
     return;
   }
 
-  for (byte pin = PIN_DATA_1; pin <= PIN_DATA_8; ++pin) {
-    pinMode(pin, OUTPUT);
-  }
+  dataBus.setMode(DataBus::BUS_OUT);
 
-  sendLineToLCD(&_text[0][0], LCD::ROW_OFFSET_0);
-  sendLineToLCD(&_text[1][0], LCD::ROW_OFFSET_1);
-  sendLineToLCD(&_text[2][0], LCD::ROW_OFFSET_2);
-  sendLineToLCD(&_text[3][0], LCD::ROW_OFFSET_3);
+  sendLineToLCD(dataBus, &_text[0][0], LCD::ROW_OFFSET_0);
+  sendLineToLCD(dataBus, &_text[1][0], LCD::ROW_OFFSET_1);
+  sendLineToLCD(dataBus, &_text[2][0], LCD::ROW_OFFSET_2);
+  sendLineToLCD(dataBus, &_text[3][0], LCD::ROW_OFFSET_3);
 
-  Serial.println("LCD Updated");
   _changed = false;
 }
 

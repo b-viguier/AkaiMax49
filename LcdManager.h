@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+class DataBus;
+
 class LcdManager {
 public:
 
@@ -13,9 +15,9 @@ public:
 
   LcdManager();
 
-  void setup();
+  void setup(DataBus& dataBus);
 
-  void update();
+  void update(DataBus& dataBus);
 
   void printL(byte row, byte col, const char* text);
   void printR(byte row, byte col, const char* text);

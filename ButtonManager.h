@@ -1,6 +1,7 @@
 #ifndef AKAIMAX49_BUTTONMANAGER_H
 #define AKAIMAX49_BUTTONMANAGER_H
 
+class DataBus;
 
 class ButtonManager {
 public:
@@ -8,7 +9,7 @@ public:
 
   void setup();
 
-  void update();
+  void update(DataBus& dataBus);
 
 
   enum ID {

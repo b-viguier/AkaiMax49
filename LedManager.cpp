@@ -2,6 +2,7 @@
 
 #include "LedManager.h"
 #include "Pins.h"
+#include "DataBus.h"
 
 static_assert(LedManager::LAST <= 32*8, "Too much buttons declared");
 
@@ -42,23 +43,10 @@ namespace {
   };
 
 
-  void lightBlock(LedBlockAddr addr, byte data) {
+  void lightBlock(const DataBus& dataBus, LedBlockAddr addr, byte data) {
 
-    digitalWrite(PIN_ADDR_10, addr & 0b00000001);
-    digitalWrite(PIN_ADDR_11, addr & 0b00000010);
-    digitalWrite(PIN_ADDR_12, addr & 0b00000100);
-    digitalWrite(PIN_ADDR_13, addr & 0b00001000);
-    digitalWrite(PIN_ADDR_14, addr & 0b00010000);
-    digitalWrite(PIN_ADDR_15, addr & 0b00100000);
-
-    digitalWrite(PIN_DATA_1, data & 0b00000001);
-    digitalWrite(PIN_DATA_2, data & 0b00000010);
-    digitalWrite(PIN_DATA_3, data & 0b00000100);
-    digitalWrite(PIN_DATA_4, data & 0b00001000);
-    digitalWrite(PIN_DATA_5, data & 0b00010000);
-    digitalWrite(PIN_DATA_6, data & 0b00100000);
-    digitalWrite(PIN_DATA_7, data & 0b01000000);
-    digitalWrite(PIN_DATA_8, data & 0b10000000);
+    dataBus.setAddress(addr);
+    dataBus.write(data);
 
     delay(1);
     digitalWrite(PIN_CLOCK_LED_16, LOW);
@@ -76,54 +64,61 @@ LedManager::LedManager()
 }
 
 
-void LedManager::setup() {
-  update();
+void LedManager::setup(DataBus& dataBus) {
+  // Disable LEDs
+  digitalWrite(PIN_ENABLE_19, HIGH);
+  pinMode(PIN_ENABLE_19, OUTPUT);
+
+  digitalWrite(PIN_CLOCK_LED_16, HIGH);
+  pinMode(PIN_CLOCK_LED_16, OUTPUT);
+//  delay(1000);
+
+  update(dataBus);
   // Enable LEDs
   digitalWrite(PIN_ENABLE_19, LOW);
 }
 
-void LedManager::update() {
+void LedManager::update(DataBus& dataBus) {
+
   if(_blocksChanged == 0) {
     return;
   }
 
-  for (byte pin = PIN_DATA_1; pin <= PIN_DATA_8; ++pin) {
-    pinMode(pin, OUTPUT);
-  }
+  dataBus.setMode(DataBus::BUS_OUT);
 
-  if(_blocksChanged & 0x00000001) lightBlock(U310, _states[0]);
-  if(_blocksChanged & 0x00000002) lightBlock(U312, _states[1]);
-  if(_blocksChanged & 0x00000004) lightBlock(U316, _states[2]);
-  if(_blocksChanged & 0x00000008) lightBlock(U317, _states[3]);
-  if(_blocksChanged & 0x00000010) lightBlock(U311, _states[4]);
-  if(_blocksChanged & 0x00000020) lightBlock(U313, _states[5]);
-  if(_blocksChanged & 0x00000040) lightBlock(U318, _states[6]);
-  if(_blocksChanged & 0x00000080) lightBlock(U319, _states[7]);
-  if(_blocksChanged & 0x00000100) lightBlock(U314, _states[8]);
-  if(_blocksChanged & 0x00000200) lightBlock(U315, _states[9]);
-  if(_blocksChanged & 0x00000400) lightBlock(U320, _states[10]);
-  if(_blocksChanged & 0x00000800) lightBlock(U321, _states[11]);
-  if(_blocksChanged & 0x00001000) lightBlock(U410, _states[12]);
-  if(_blocksChanged & 0x00002000) lightBlock(U413, _states[13]);
-  if(_blocksChanged & 0x00004000) lightBlock(U416, _states[14]);
-  if(_blocksChanged & 0x00008000) lightBlock(U417, _states[15]);
-  if(_blocksChanged & 0x00010000) lightBlock(U422, _states[16]);
-  if(_blocksChanged & 0x00020000) lightBlock(U411, _states[17]);
-  if(_blocksChanged & 0x00040000) lightBlock(U414, _states[18]);
-  if(_blocksChanged & 0x00080000) lightBlock(U418, _states[19]);
-  if(_blocksChanged & 0x00100000) lightBlock(U419, _states[20]);
-  if(_blocksChanged & 0x00200000) lightBlock(U412, _states[21]);
-  if(_blocksChanged & 0x00400000) lightBlock(U415, _states[22]);
-  if(_blocksChanged & 0x00800000) lightBlock(U420, _states[23]);
-  if(_blocksChanged & 0x01000000) lightBlock(U421, _states[24]);
+  if(_blocksChanged & 0x00000001) lightBlock(dataBus, U310, _states[0]);
+  if(_blocksChanged & 0x00000002) lightBlock(dataBus, U312, _states[1]);
+  if(_blocksChanged & 0x00000004) lightBlock(dataBus, U316, _states[2]);
+  if(_blocksChanged & 0x00000008) lightBlock(dataBus, U317, _states[3]);
+  if(_blocksChanged & 0x00000010) lightBlock(dataBus, U311, _states[4]);
+  if(_blocksChanged & 0x00000020) lightBlock(dataBus, U313, _states[5]);
+  if(_blocksChanged & 0x00000040) lightBlock(dataBus, U318, _states[6]);
+  if(_blocksChanged & 0x00000080) lightBlock(dataBus, U319, _states[7]);
+  if(_blocksChanged & 0x00000100) lightBlock(dataBus, U314, _states[8]);
+  if(_blocksChanged & 0x00000200) lightBlock(dataBus, U315, _states[9]);
+  if(_blocksChanged & 0x00000400) lightBlock(dataBus, U320, _states[10]);
+  if(_blocksChanged & 0x00000800) lightBlock(dataBus, U321, _states[11]);
+  if(_blocksChanged & 0x00001000) lightBlock(dataBus, U410, _states[12]);
+  if(_blocksChanged & 0x00002000) lightBlock(dataBus, U413, _states[13]);
+  if(_blocksChanged & 0x00004000) lightBlock(dataBus, U416, _states[14]);
+  if(_blocksChanged & 0x00008000) lightBlock(dataBus, U417, _states[15]);
+  if(_blocksChanged & 0x00010000) lightBlock(dataBus, U422, _states[16]);
+  if(_blocksChanged & 0x00020000) lightBlock(dataBus, U411, _states[17]);
+  if(_blocksChanged & 0x00040000) lightBlock(dataBus, U414, _states[18]);
+  if(_blocksChanged & 0x00080000) lightBlock(dataBus, U418, _states[19]);
+  if(_blocksChanged & 0x00100000) lightBlock(dataBus, U419, _states[20]);
+  if(_blocksChanged & 0x00200000) lightBlock(dataBus, U412, _states[21]);
+  if(_blocksChanged & 0x00400000) lightBlock(dataBus, U415, _states[22]);
+  if(_blocksChanged & 0x00800000) lightBlock(dataBus, U420, _states[23]);
+  if(_blocksChanged & 0x01000000) lightBlock(dataBus, U421, _states[24]);
 
-  if(_blocksChanged & 0x02000000) lightBlock(U520_U521, _states[25]);
-  if(_blocksChanged & 0x04000000) lightBlock(U522_523, _states[26]);
-  if(_blocksChanged & 0x08000000) lightBlock(U251, _states[27]);
-  if(_blocksChanged & 0x10000000) lightBlock(U252, _states[28]);
-  if(_blocksChanged & 0x20000000) lightBlock(U267_268, _states[29]);
-  if(_blocksChanged & 0x40000000) lightBlock(U269_270, _states[30]);
-  if(_blocksChanged & 0x80000000) lightBlock(U271, _states[31]);
+  if(_blocksChanged & 0x02000000) lightBlock(dataBus, U520_U521, _states[25]);
+  if(_blocksChanged & 0x04000000) lightBlock(dataBus, U522_523, _states[26]);
+  if(_blocksChanged & 0x08000000) lightBlock(dataBus, U251, _states[27]);
+  if(_blocksChanged & 0x10000000) lightBlock(dataBus, U252, _states[28]);
+  if(_blocksChanged & 0x20000000) lightBlock(dataBus, U267_268, _states[29]);
+  if(_blocksChanged & 0x40000000) lightBlock(dataBus, U269_270, _states[30]);
+  if(_blocksChanged & 0x80000000) lightBlock(dataBus, U271, _states[31]);
 
   _blocksChanged = 0;
 }

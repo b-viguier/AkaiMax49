@@ -4,30 +4,30 @@
 #include <Arduino.h>
 
 enum Pin {
-  PIN_DATA_1 = 23,
-  PIN_DATA_2 = 24,
-  PIN_DATA_3 = 25,
-  PIN_DATA_4 = 26,
-  PIN_DATA_5 = 27,
-  PIN_DATA_6 = 28,
-  PIN_DATA_7 = 29,
-  PIN_DATA_8 = 30,
+  PIN_DATA_2 = 53,
+  PIN_DATA_3 = 52,
+  PIN_DATA_4 = 51,
+  PIN_DATA_5 = 50,
+  PIN_DATA_6 = 49,
+  PIN_DATA_7 = 48,
+  PIN_DATA_8 = 47,
+  PIN_DATA_9 = 46,
 
+  PIN_ADDR_10 = 45,
+  PIN_ADDR_11 = 44,
+  PIN_ADDR_12 = 43,
+  PIN_ADDR_13 = 42,
+  PIN_ADDR_14 = 41,
   PIN_ADDR_15 = 40,
-  PIN_ADDR_14 = 39,
-  PIN_ADDR_13 = 38,
-  PIN_ADDR_12 = 35,
-  PIN_ADDR_11 = 34,
-  PIN_ADDR_10 = 33,
 
-  PIN_CLOCK_BTN_17 = 44,
-  PIN_CLOCK_LED_16 = 43,
+  PIN_CLOCK_LED_16 = 39,
+  PIN_CLOCK_BTN_17 = 38,
 
-  PIN_ENABLE_19 = 48,
+  PIN_ENABLE_19 = 37,
 
-  PIN_LCD_ENABLE_22 = 50,
-  PIN_LCD_RW_23 = 51,
-  PIN_LCD_RS_24 = 52,
+  PIN_LCD_ENABLE_22 = 34,
+  PIN_LCD_RW_23 = 33,
+  PIN_LCD_RS_24 = 32,
   PIN_LCD_V0_25 = DAC1,
 };
 

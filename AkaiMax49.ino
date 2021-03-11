@@ -2,12 +2,14 @@
 #include "LedManager.h"
 #include "LcdManager.h"
 #include "Pins.h"
+#include "DataBus.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
 LedManager ledManager;
 ButtonManager buttonManager;
 LcdManager lcdManager;
+DataBus dataBus;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -15,33 +17,20 @@ void setup() {
 
   Serial.begin(9600);
 
-  pinMode(PIN_ENABLE_19, OUTPUT);
-  digitalWrite(PIN_ENABLE_19, HIGH);
-
-  for (byte pin = PIN_DATA_1; pin <= PIN_DATA_8; ++pin) {
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-  }
-
-  for (byte pin = PIN_ADDR_10; pin <= PIN_ADDR_15; ++pin) {
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-  }
-
-  pinMode(PIN_CLOCK_LED_16, OUTPUT);
-  digitalWrite(PIN_CLOCK_LED_16, HIGH);
-  pinMode(PIN_CLOCK_BTN_17, OUTPUT);
-  digitalWrite(PIN_CLOCK_BTN_17, HIGH);
-
-  Serial.println("Waiting 1s");
+  // Waiting power
   delay(1000);
 
-  Serial.println("Light down");
-  ledManager.setup();
+  Serial.println("Bus setup…");
+  dataBus.setup();
+
+  Serial.println("LED setup…");
+  ledManager.setup(dataBus);
+
+  Serial.println("Buttons setup…");
   buttonManager.setup();
 
-  Serial.println("LCD Init");
-  lcdManager.setup();
+  Serial.println("LCD setup…");
+  lcdManager.setup(dataBus);
 
 
   DEFAULT_CALLBACK(NOTE_REPEAT);
@@ -127,17 +116,17 @@ void loop() {
     ledManager.lightSlider(LedManager::SLIDER_6+prevLeds[5], true);
     ledManager.lightSlider(LedManager::SLIDER_7+prevLeds[6], true);
     ledManager.lightSlider(LedManager::SLIDER_8+prevLeds[7], true);
-    ledManager.update();
 
-    buttonManager.update();
 
     const unsigned int time = millis() / 1000;
     if(previousTime != time) {
       previousTime = time;
       lcdManager.printIntegerL(3, 0, time);
     }
-    lcdManager.update();
 
+    ledManager.update(dataBus);
+    buttonManager.update(dataBus);
+    lcdManager.update(dataBus);
 
     delay(5);
   }
