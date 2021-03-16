@@ -206,24 +206,24 @@ void LcdManager::printR(byte row, byte col, const char* text) {
   _changed = true;
 }
 
-void LcdManager::printIntegerL(byte row, byte col, unsigned int value) {
+void LcdManager::printIntegerL(byte row, byte col, unsigned int value, byte base) {
   // Find number length
   byte len = 0;
   auto valueCopy = value;
   do {
-    valueCopy /= 10;
+    valueCopy /= base;
     ++len;
   } while(valueCopy);
-  for(col+=len-1;len;--len,--col,value/=10) {
-    _text[row][col] =  '0' + (value % 10);
+  for(col+=len-1;len;--len,--col,value/=base) {
+    _text[row][col] =  '0' + (value % base);
   }
   _changed = true;
 }
 
-void LcdManager::printIntegerR(byte row, byte col, unsigned int value) {
+void LcdManager::printIntegerR(byte row, byte col, unsigned int value, byte base) {
   do {
-    _text[row][col] = '0' + (value % 10);
-    value /= 10;
+    _text[row][col] = '0' + (value % base);
+    value /= base;
     --col;
   } while(value);
   _changed = true;

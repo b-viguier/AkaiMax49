@@ -22,8 +22,8 @@ public:
   void printL(byte row, byte col, const char* text);
   void printR(byte row, byte col, const char* text);
 
-  void printIntegerL(byte row, byte col, unsigned int value);
-  void printIntegerR(byte row, byte col, unsigned int value);
+  void printIntegerL(byte row, byte col, unsigned int value, byte base = 10);
+  void printIntegerR(byte row, byte col, unsigned int value, byte base = 10);
 
   void clear();
 
