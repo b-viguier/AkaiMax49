@@ -29,6 +29,9 @@ enum Pin {
   PIN_LCD_RW_23 = 33,
   PIN_LCD_RS_24 = 32,
   PIN_LCD_V0_25 = DAC1,
+
+  PIN_PITCH_11 = A0,
+  PIN_MOD_12 = A1,
 };
 
 #endif //AKAIMAX49_PINS_H

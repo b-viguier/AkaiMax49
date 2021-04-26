@@ -3,6 +3,7 @@
 #include "LcdManager.h"
 #include "Pins.h"
 #include "DataBus.h"
+#include "WheelManager.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
@@ -10,6 +11,7 @@ LedManager ledManager;
 ButtonManager buttonManager;
 LcdManager lcdManager;
 DataBus dataBus;
+WheelManager wheelManager;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -20,11 +22,21 @@ void setup() {
   // Waiting power
   delay(1000);
 
+  // Global analog resolution
+  analogReadResolution(6);
+
   Serial.println("Bus setup…");
   dataBus.setup();
 
   Serial.println("LED setup…");
   ledManager.setup(dataBus);
+
+  Serial.println("Wheels setup…");
+  wheelManager.setup();
+  wheelManager.setCallback(WheelManager::PITCH, [](byte value) {
+    lcdManager.printR(1, LcdManager::Dimension::NB_COLS-1, "            ");
+    lcdManager.printIntegerR(1, LcdManager::Dimension::NB_COLS-1, value);
+  }),
 
   Serial.println("Buttons setup…");
   buttonManager.setup();
@@ -78,13 +90,9 @@ void setup() {
   buttonManager.setCallback(ButtonManager::RIGHT,[](bool enable) { ledManager.light(LedManager::PAD12, enable);});
 
   lcdManager.printL(0, 0, "Akai");
-  lcdManager.printR(0, LcdManager::Dimension::NB_COLS-1, "Akai");
-  lcdManager.printL(1, 0, "Max49");
-  lcdManager.printR(1, LcdManager::Dimension::NB_COLS-1, "Max49");
-  lcdManager.printIntegerR(2, LcdManager::Dimension::NB_COLS-1, 123456);
-  lcdManager.printIntegerL(2, 0, 123456);
+  lcdManager.printR(0, LcdManager::Dimension::NB_COLS-1, "Max49");
+  lcdManager.printL(1, 0, "Pitch");
   lcdManager.printIntegerL(3, 0, 0);
-  lcdManager.printIntegerR(3, 19, 123);
   Serial.println("Init Done");
 }
 
@@ -126,6 +134,7 @@ void loop() {
 
     ledManager.update(dataBus);
     buttonManager.update(dataBus);
+    wheelManager.update();
     lcdManager.update(dataBus);
 
     delay(5);
