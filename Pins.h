@@ -25,6 +25,9 @@ enum Pin {
 
   PIN_ENABLE_19 = 37,
 
+  PIN_ROT_LEFT_20 = 36,
+  PIN_ROT_RIGHT_21 = 35,
+
   PIN_LCD_ENABLE_22 = 34,
   PIN_LCD_RW_23 = 33,
   PIN_LCD_RS_24 = 32,

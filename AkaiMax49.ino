@@ -4,6 +4,7 @@
 #include "Pins.h"
 #include "DataBus.h"
 #include "WheelManager.h"
+#include "RotaryManager.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
@@ -12,6 +13,7 @@ ButtonManager buttonManager;
 LcdManager lcdManager;
 DataBus dataBus;
 WheelManager wheelManager;
+RotaryManager rotaryManager;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -40,6 +42,9 @@ void setup() {
 
   Serial.println("Buttons setup…");
   buttonManager.setup();
+
+  Serial.println("Rotary setup…");
+  rotaryManager.setup();
 
   Serial.println("LCD setup…");
   lcdManager.setup(dataBus);
@@ -135,6 +140,7 @@ void loop() {
     ledManager.update(dataBus);
     buttonManager.update(dataBus);
     wheelManager.update();
+    rotaryManager.update();
     lcdManager.update(dataBus);
 
     delay(5);
