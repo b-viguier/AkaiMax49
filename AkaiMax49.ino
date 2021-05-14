@@ -5,6 +5,7 @@
 #include "DataBus.h"
 #include "WheelManager.h"
 #include "RotaryManager.h"
+#include "SliderManager.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
@@ -14,6 +15,7 @@ LcdManager lcdManager;
 DataBus dataBus;
 WheelManager wheelManager;
 RotaryManager rotaryManager;
+SliderManager sliderManager;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -46,9 +48,13 @@ void setup() {
   Serial.println("Rotary setup…");
   rotaryManager.setup();
 
+  Serial.println("Slider setup…");
+  sliderManager.setup();
+
   Serial.println("LCD setup…");
   lcdManager.setup(dataBus);
 
+  Serial.println("Callbacks setup…");
 
   DEFAULT_CALLBACK(NOTE_REPEAT);
   DEFAULT_CALLBACK(LATCH);
@@ -94,55 +100,42 @@ void setup() {
   buttonManager.setCallback(ButtonManager::LEFT,[](bool enable) { ledManager.light(LedManager::PAD11, enable);});
   buttonManager.setCallback(ButtonManager::RIGHT,[](bool enable) { ledManager.light(LedManager::PAD12, enable);});
 
+  sliderManager.setCallback([](byte id, byte value) {
+    const byte sliderStart = LedManager::SLIDER_1 + id*LedManager::NB_LED_PER_SLIDER;
+    const byte sliderEnd = sliderStart + LedManager::NB_LED_PER_SLIDER;
+    const byte sliderValue = sliderStart + map(value, 0, 127, 0, LedManager::NB_LED_PER_SLIDER-1);
+
+    for(unsigned ledId = sliderStart; ledId <= sliderValue; ++ledId) {
+      ledManager.lightSlider(ledId, true);
+    }
+    for(unsigned ledId = sliderValue + 1; ledId < sliderEnd; ++ledId) {
+      ledManager.lightSlider(ledId, false);
+    }
+  });
+
   lcdManager.printL(0, 0, "Akai");
   lcdManager.printR(0, LcdManager::Dimension::NB_COLS-1, "Max49");
   lcdManager.printL(1, 0, "Pitch");
   lcdManager.printIntegerL(3, 0, 0);
+
   Serial.println("Init Done");
 }
 
-byte prevLeds[8] = {0};
 unsigned int previousTime = 0;
 void loop() {
 
-
-  for(unsigned int i = 0; i< LedManager::NB_LED_PER_SLIDER; ++i) {
-    ledManager.lightSlider(LedManager::SLIDER_1+prevLeds[0], false);
-    ledManager.lightSlider(LedManager::SLIDER_2+prevLeds[1], false);
-    ledManager.lightSlider(LedManager::SLIDER_3+prevLeds[2], false);
-    ledManager.lightSlider(LedManager::SLIDER_4+prevLeds[3], false);
-    ledManager.lightSlider(LedManager::SLIDER_5+prevLeds[4], false);
-    ledManager.lightSlider(LedManager::SLIDER_6+prevLeds[5], false);
-    ledManager.lightSlider(LedManager::SLIDER_7+prevLeds[6], false);
-    ledManager.lightSlider(LedManager::SLIDER_8+prevLeds[7], false);
-
-    const unsigned int m = millis();
-    for(unsigned j=0; j<8; ++j) {
-      prevLeds[j] = (int)(LedManager::NB_LED_PER_SLIDER * (sin(m/100.0 + j*0.5)+1) / 2);
-    }
-
-    ledManager.lightSlider(LedManager::SLIDER_1+prevLeds[0], true);
-    ledManager.lightSlider(LedManager::SLIDER_2+prevLeds[1], true);
-    ledManager.lightSlider(LedManager::SLIDER_3+prevLeds[2], true);
-    ledManager.lightSlider(LedManager::SLIDER_4+prevLeds[3], true);
-    ledManager.lightSlider(LedManager::SLIDER_5+prevLeds[4], true);
-    ledManager.lightSlider(LedManager::SLIDER_6+prevLeds[5], true);
-    ledManager.lightSlider(LedManager::SLIDER_7+prevLeds[6], true);
-    ledManager.lightSlider(LedManager::SLIDER_8+prevLeds[7], true);
-
-
-    const unsigned int time = millis() / 1000;
-    if(previousTime != time) {
-      previousTime = time;
-      lcdManager.printIntegerL(3, 0, time);
-    }
-
-    ledManager.update(dataBus);
-    buttonManager.update(dataBus);
-    wheelManager.update();
-    rotaryManager.update();
-    lcdManager.update(dataBus);
-
-    delay(5);
+  const unsigned int time = millis() / 1000;
+  if(previousTime != time) {
+    previousTime = time;
+    lcdManager.printIntegerL(3, 0, time);
   }
+
+  ledManager.update(dataBus);
+  buttonManager.update(dataBus);
+  wheelManager.update();
+  sliderManager.update();
+  rotaryManager.update();
+  lcdManager.update(dataBus);
+
+  delay(5);
 }
