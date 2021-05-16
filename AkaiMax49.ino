@@ -6,6 +6,7 @@
 #include "WheelManager.h"
 #include "RotaryManager.h"
 #include "SliderManager.h"
+#include "PadManager.h"
 
 static_assert(4 == sizeof(unsigned int), "32 bits integers required");
 
@@ -16,6 +17,7 @@ DataBus dataBus;
 WheelManager wheelManager;
 RotaryManager rotaryManager;
 SliderManager sliderManager;
+PadManager padManager;
 
 #define DEFAULT_CALLBACK(ID) buttonManager.setCallback(ButtonManager::ID,[](bool enable) { ledManager.light(LedManager::ID, enable); })
 
@@ -50,6 +52,9 @@ void setup() {
 
   Serial.println("Slider setup…");
   sliderManager.setup();
+
+  Serial.println("Pad setup…");
+  padManager.setup();
 
   Serial.println("LCD setup…");
   lcdManager.setup(dataBus);
@@ -86,6 +91,24 @@ void setup() {
   buttonManager.setCallback(ButtonManager::TIME_16T,[](bool enable) { ledManager.light(LedManager::TIME_16T_R, enable); ledManager.light(LedManager::TIME_16T_G, enable); });
   buttonManager.setCallback(ButtonManager::TIME_32,[](bool enable) { ledManager.light(LedManager::TIME_32_R, enable); ledManager.light(LedManager::TIME_32_G, enable); });
   buttonManager.setCallback(ButtonManager::TIME_32T,[](bool enable) { ledManager.light(LedManager::TIME_32T_R, enable); ledManager.light(LedManager::TIME_32T_G, enable); });
+
+  padManager.setCallback([](byte padId, byte value) {
+    static const LedManager::ID map[PadManager::NB_PADS] = {
+        LedManager::PAD1_UP,
+        LedManager::PAD2_DOWN,
+        LedManager::PAD3_INC,
+        LedManager::PAD4_EXCL,
+        LedManager::PAD5_RAND,
+        LedManager::PAD6_CHORD,
+        LedManager::PAD7_DOUBLE,
+        LedManager::PAD8_PATTERN,
+        LedManager::PAD9,
+        LedManager::PAD10,
+        LedManager::PAD11,
+        LedManager::PAD12,
+    };
+    ledManager.light(map[padId], value != 0);
+  });
 
   buttonManager.setCallback(ButtonManager::SHIFT,[](bool enable) { ledManager.light(LedManager::PAD1_UP, enable);});
   buttonManager.setCallback(ButtonManager::EDIT_STORE,[](bool enable) { ledManager.light(LedManager::PAD2_DOWN, enable);});
@@ -134,6 +157,7 @@ void loop() {
   buttonManager.update(dataBus);
   wheelManager.update();
   sliderManager.update();
+  padManager.update();
   rotaryManager.update();
   lcdManager.update(dataBus);
 
